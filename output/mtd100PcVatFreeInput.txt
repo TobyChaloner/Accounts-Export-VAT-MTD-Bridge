@@ -1,0 +1,7 @@
+Vat due on Sales,200.00
+Vat due from EU,0.00
+VAT Reclaimable,20.00
+Total Sales,1000
+Total Purchases,100
+Goods to EU,0
+Goods from EU,0

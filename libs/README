@@ -1,0 +1,48 @@
+Advanced project structure
+
+When you have a very complex project with third party libraries dependencies you need a way to link it all together. For this purpose there is libs folder. You basically put there third party libraries which have project structure like in simple example above.
+
+Foo
+ ├── include
+ │   └── Foo
+ │       ├── Foo.h
+ │       └── ...
+ ├── src
+ │   ├── Foo.cpp
+ │   └── ...
+ ├── test
+ │   └── ...
+ └── libs
+     ├── A
+     │   ├── include
+     │   │   └── A
+     │   │       ├── A.h
+     │   │       └── ...
+     │   ├── src
+     │   │   ├── A.cpp
+     │   │   └── ...
+     │   └── test
+     │       └── ...
+     └── B
+         ├── include
+         │   └── B
+         │       ├── B.h
+         │       └── ...
+         ├── src
+         │   ├── B.cpp
+         │   └── ...
+         └── test
+             └── ...
+
+
+Googletest
+Foo
+ ├── include
+ ├── src
+ ├── test
+ └── libs
+     ├── A
+     ├── B
+     └── gtest-1.7.0
+
+

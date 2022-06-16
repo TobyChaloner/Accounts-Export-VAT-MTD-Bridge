@@ -1,0 +1,23 @@
+idea is to meet MTD rules by having a tracable route from Solar to mtd100Percent VAT Free excel sheet.
+
+Process - In Solar - File Export to CSV
+
+Run this on the CSV - producing a summary CSV which can be sucked into 100percent VAT Free Bridge
+
+The following does not like that a column is declared in title, but then does not appear later.
+https://github.com/ben-strasser/fast-cpp-csv-parser
+
+
+
+boost installed to /usr/include/boost
+
+
+
+Usage:
+Solar100PcVatFreeBridge -i 'Exported Data - My Company Ltd.csv' -o mtd100PcVatFreeInput.csv -e 6
+
+Where one of your vat periods ends in June (-e 6).
+-i is the export from Solar Accounts
+-o is the csv to be read by MTD PC Free Vat Input tool.
+
+
