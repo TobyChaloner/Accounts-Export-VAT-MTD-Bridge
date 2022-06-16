@@ -18,8 +18,9 @@ which can be sucked into 100percent VAT Free Bridge
 
 Gotcha
 C++11 ie C++ V11
-boost installed to /usr/include/boost
 cmake
+
+
 
 
 Usage:
@@ -36,6 +37,14 @@ project
     src <this repo>
     build <cmake is run in here>
 
+
+Building (cross compiling for windows):
+Read TC-mingw.cmake
+
+
+
+NB
+Boost includes have been copied in.
 
 
 Solar Accounts is here:
