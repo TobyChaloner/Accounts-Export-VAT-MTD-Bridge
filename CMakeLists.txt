@@ -26,6 +26,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 include_directories(include)
+include_directories(libs)
 
 add_subdirectory(src)
 add_subdirectory(tests)

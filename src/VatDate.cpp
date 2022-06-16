@@ -111,7 +111,6 @@ void VatDate::setInterestingVatPeriodAsOneBeforeCurrent()
 {
   if (vatYearPeriodEnd < 0) { throw runtime_error("VatDate::setInterestingVatPeriodAsLast, vatYearPeriodEnd never set - code error");}
   // using current date time, get m,yy and pass to setInterestingVatPeriodContaining
-    // TODO
   std::time_t t = std::time(nullptr);
   std::tm *const timeInfo = std::localtime(&t);
   int year = 1900 + timeInfo->tm_year; // year without the century
