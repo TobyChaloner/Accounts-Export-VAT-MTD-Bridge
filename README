@@ -1,16 +1,25 @@
-idea is to meet MTD rules by having a tracable route from Solar to mtd100Percent VAT Free excel sheet.
+The problem is: HMRC VAT appears to have asked for VAT to be submitted using a tracable system,
+without copy paste or manual entry of the submitted figures.
 
-Process - In Solar - File Export to CSV
-
-Run this on the CSV - producing a summary CSV which can be sucked into 100percent VAT Free Bridge
-
-The following does not like that a column is declared in title, but then does not appear later.
-https://github.com/ben-strasser/fast-cpp-csv-parser
+Idea is to meet MTD rules by having a tracable route from
+the non-cloud based Solar Accounts to 100PercentVATFreeBridge.
 
 
 
+
+Process -
+
+In Solar - File Export to CSV (export everything)
+Run Solar100PcVatFreeBridge on the CSV - producing a summary CSV
+which can be sucked into 100percent VAT Free Bridge
+
+
+
+
+Gotcha
+C++11 ie C++ V11
 boost installed to /usr/include/boost
-
+cmake
 
 
 Usage:
@@ -19,5 +28,13 @@ Solar100PcVatFreeBridge -i 'Exported Data - My Company Ltd.csv' -o mtd100PcVatFr
 Where one of your vat periods ends in June (-e 6).
 -i is the export from Solar Accounts
 -o is the csv to be read by MTD PC Free Vat Input tool.
+
+
+Building:
+Need directories that look like
+project
+    src <this repo>
+    build <cmake is run in here>
+
 
 
