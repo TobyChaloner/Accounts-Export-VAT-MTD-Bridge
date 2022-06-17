@@ -5,3 +5,5 @@ prog
 .gdb_history
 data
 .~
+.valgrind.log
+TODO

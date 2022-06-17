@@ -1,0 +1,6 @@
+static code checked with
+flawfinder = nothing which could create a security flaw.
+cppcheck = no issues reported.
+valgrind = no leaks
+
+
