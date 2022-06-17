@@ -6,6 +6,11 @@
 
 using namespace std;
 
+/*
+  Some companies have a VAT year.
+  One of the VAT quarter ends is often considered the VAT year end.
+  Identifying the month (1..12) will set the other VAT quarter ends.
+*/
 void VatDate::setVatYearEndMonth(int endMonth)
 {
   vatYearPeriodEnd = endMonth;
@@ -40,10 +45,20 @@ void VatDate::setVatYearEndMonth(int endMonth)
 }
 
 
+/*
+  The question 'is this date of interest to the calculation' needs to be answered.
+  This allows the object to be able to answer that question.
+  By knowing the last month in the VAT period, this can record the preceeding two months as well.
+  So later on a different call to the object, the question can be answered.
 
-  // year is 2022 or 1978
-  // month is 1-12
-  // only months within last 3 are then deemed in vat period
+  This function is not generally publically called (except for testing)
+  See setInterestingVatPeriodAsOneBeforeCurrent()
+
+Parameters:
+   year is 2022 or 1978
+   month is 1-12
+   only months within last 3 are then deemed in vat period
+*/
 void VatDate::setInterestingVatPeriodEnd(int month, int year)
 {
   if (vatYearPeriodEnd < 0) { throw runtime_error("VatDate::setInterestingVatPeriodAsLast, vatYearPeriodEnd never set - code error");}
@@ -104,9 +119,15 @@ void VatDate::setInterestingVatPeriodEnd(int month, int year)
 }
 
 
+/*
+  Called to set the interesting VAT period to before the current live one.
+  This makes sense as the VAT return is not done until the period has finished and
+  generally is done within the following period (should be).
 
-// looks at current date and sets the interesting VAT period end month,year
-// sets to one before current
+Logic:
+  looks at current date and sets the interesting VAT period end month,year
+  sets to one before current
+*/
 void VatDate::setInterestingVatPeriodAsOneBeforeCurrent()
 {
   if (vatYearPeriodEnd < 0) { throw runtime_error("VatDate::setInterestingVatPeriodAsLast, vatYearPeriodEnd never set - code error");}
@@ -126,7 +147,14 @@ void VatDate::setInterestingVatPeriodAsOneBeforeCurrent()
 }
 
 
-// This works out the VAT period that contains this month/year
+/*
+  For historic and rectification and testing reasons, the 
+  months in the VAT period need to be set from a known month (not necessarily the last in the period)
+
+  This assumes that the End month (for one VAT period, not necessarily this) has been entered.
+
+  This works out the VAT period that contains this month/year
+*/
 void VatDate::setInterestingVatPeriodContaining(int month, int year)
 {
   if (vatYearPeriodEnd < 0) { throw runtime_error("VatDate::setInterestingVatPeriodAsLast, vatYearPeriodEnd never set - code error");}
@@ -142,9 +170,13 @@ void VatDate::setInterestingVatPeriodContaining(int month, int year)
 
 
 
-/* Date example
-17/09/2021
- */
+/*   
+     The question 'is this date of interest to the calculation' needs to be answered.
+     This allows the object to be asked that question.
+
+     Date example
+     17/09/2021
+*/
 bool VatDate::isInVatPeriod(string& theDate)
 {
   int mthPos = theDate.find("/") + 1;
@@ -158,7 +190,6 @@ bool VatDate::isInVatPeriod(string& theDate)
 
   // going to have three strings.  They match or they dont.
   bool valid = validMonths.find(monthDate) != validMonths.end();
-    
     
   // 1,2,3  interestingVatPeriodEndMonth
   // this or last    interestingVatPeriodEndYear
