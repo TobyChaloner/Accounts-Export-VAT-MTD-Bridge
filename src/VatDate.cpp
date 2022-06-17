@@ -10,7 +10,7 @@ void VatDate::setVatYearEndMonth(int endMonth)
 {
   vatYearPeriodEnd = endMonth;
   
-  monthToVatEndMonth.reserve(12); // need 12 elements to populate
+  monthToVatEndMonth.reserve(12+1); // need 12 elements to populate, but indexing 1..12 (not 0..11)
   int periodEnd=vatYearPeriodEnd;
   int count=0;
   int mth = vatYearPeriodEnd; // start at period end, not 0 or 12

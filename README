@@ -13,6 +13,9 @@ In Solar - File Export to CSV (export everything)
 Run Solar100PcVatFreeBridge on the CSV - producing a summary CSV
 which can be sucked into 100percent VAT Free Bridge
 
+Validation -
+Run VAT in Solar and eye ball figures.
+Visually confirm the figures imported into 100PcVatFreeBridge are the same.
 
 
 
@@ -44,7 +47,7 @@ Read TC-mingw.cmake
 
 
 NB
-Boost includes have been copied in.
+Boost v1.79.0 includes have been copied in.
 
 
 Solar Accounts is here:
