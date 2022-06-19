@@ -95,6 +95,10 @@ int main(int argc, char *argv[])
     processor.accumulateAllVatInformation();
     processor.showAccumulation();
 
+    totalSales = processor.getIncomeAmount();
+    totalPurchases = processor.getPurchasesAmount();
+    vatOnSales = processor.getIncomeVatAmount();
+    vatReclaimable = processor.getReclaimableAmount();
     
     outputter.writeFile(outFilename,
 			vatOnSales,

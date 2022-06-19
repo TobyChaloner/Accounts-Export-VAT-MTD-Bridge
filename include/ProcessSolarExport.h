@@ -56,6 +56,12 @@ public:
   void loadAccountsOnly();
   void accumulateAllVatInformation(); // assumes titles and accounts loaded.  accumulates vat
   void showAccumulation();
+
+  float getIncomeAmount() {return incomeAmount;};
+  float getIncomeVatAmount() {return incomeVatAmount;};
+  float getPurchasesAmount() {return purchasesAmount;};
+  float getReclaimableAmount() {return reclaimableAmount;};
+  
 private:
   string findTopNode(const string &node);
   PostAction loadAccountsLine(vector<string> &vec);
