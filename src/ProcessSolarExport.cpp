@@ -2,7 +2,6 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include <fstream>
 #include <boost/tokenizer.hpp>
 
 
@@ -34,6 +33,17 @@ void ProcessSolarExport::open(const string &filename)
 
 
 
+ProcessSolarExport::~ProcessSolarExport()
+{
+  if (fstr.is_open())
+  {
+    fstr.close();
+  }
+}
+
+
+
+
 void ProcessSolarExport::loadTitles()
 {
   loadFromRecords(&ProcessSolarExport::loadTitle); 
@@ -43,11 +53,16 @@ void ProcessSolarExport::loadTitles()
 
 PostAction ProcessSolarExport::loadTitle(vector<string> &vec)
 {
-  for(const auto& title: vec) {
+  for(const auto& title: vec)
+  {
     titles.push_back(title);
     titleOffset[title] = titles.size() - 1;
   }
- 
+
+  offsetOfTitleType = getTitleOffset("Type");
+  offsetOfTitleName = getTitleOffset("Name");
+  offsetOfTitleGroupUnder = getTitleOffset("Group Under");
+
   return PostAction::finish_done_record;  // only ever one record
 }
 
@@ -88,22 +103,28 @@ PostAction ProcessSolarExport::loadAccountsLine(vector<string> &vec)
   const int lenPrefix(accountPrefix.size());
   const string accountGroupPrefix("Account Group");
   const int lenGroupPrefix(accountGroupPrefix.size());
-  if (vec[0] == accountGroupPrefix)
+  
+  if (vec[offsetOfTitleType] == accountGroupPrefix)
   {
     // its a group
-    // its either a top node, or a sub node.  top nodes have 3 fields, subnodes have more
-    if (vec.size() == 3)
+
+    // there are two types of group record.  One that is a topnode (no or blank 'Group Under') and a sub node, which has a 'Group Under'
+    // the Group Under need to recurse back to their topnode.
+
+    
+    
+    // its either a top node, or a sub node.  top nodes have fewer fields than subnodes
+    if (vec.size() < offsetOfTitleGroupUnder+1 || vec[offsetOfTitleGroupUnder] == string(""))
     {
-      string name = rtrim(vec[1]);
+      string name = rtrim(vec[offsetOfTitleName]);
       // top node
       hierachy[name] = name;
     }
     else
     {
-      string name = rtrim(vec[1]);
-      string parent = rtrim(vec[3]);
+      string name = rtrim(vec[offsetOfTitleName]);
+      string parent = rtrim(vec[offsetOfTitleGroupUnder]);
 	
-      // size is 4
       // flatten hierachy, so all nodes point to their top node.  i.e. Expenses point to Expenses
       string topNode = findTopNode(parent);
       hierachy[name] = topNode; 
@@ -111,10 +132,10 @@ PostAction ProcessSolarExport::loadAccountsLine(vector<string> &vec)
   }
 
   // looking at an account
-  else if (vec[0] == accountPrefix)
+  else if (vec[offsetOfTitleType] == accountPrefix)
   {
     // an account needs to be identified as an Expenses or Income account
-    string topNode = findTopNode(vec[3]);
+    string topNode = findTopNode(vec[offsetOfTitleGroupUnder]);
     hierachy[vec[1]] = topNode; 
   }
   else
@@ -139,17 +160,31 @@ void ProcessSolarExport::accumulateAllVatInformation()
 
 PostAction ProcessSolarExport::accumulateAllVatInformationLine(vector<string> &vec)
 {
-  if (vec[0] == "Invoice")
+  if (vec[offsetOfTitleType] == "Invoice")
   {
     processInvoiceVat(vec);
   }
-  if (vec[0] == "Money Paid Out")
+  if (vec[offsetOfTitleType] == "Money Paid Out")
   {
     processPurchaseVat(vec);
   }
   return PostAction::not_finished;  
   
 }
+
+
+// get column index/offset containing this title
+int ProcessSolarExport::getTitleOffset(const string title)
+{
+    auto it = titleOffset.find(title);
+    if (it == titleOffset.end())
+    {
+      string msg = "titles map did not contain node " + title;
+      throw (runtime_error(msg));
+    }
+    return it->second;  
+}
+
 
 
 // lineNo eg Line 1 VAT Amount so 1
@@ -160,14 +195,7 @@ float ProcessSolarExport::getAmount(vector<string> &vec, const string& prefix, i
 #if 0
     cout << "Lookingup:"<<ss.str()<<"-"<<endl;
 #endif    
-    auto it = titleOffset.find(ss.str());
-    if (it == titleOffset.end())
-    {
-      string msg = "titles map did not contain node " + ss.str();
-      throw (runtime_error(msg));
-    }
-
-    int offset = it->second;
+    int offset = getTitleOffset(ss.str());
     string AmountStr = vec[offset];
 
     const char poundSymbol = '\243';
@@ -186,13 +214,13 @@ float ProcessSolarExport::getAmount(vector<string> &vec, const string& prefix, i
 */
 PostAction ProcessSolarExport::processInvoiceVat(vector<string> &vec)
 {
-  int linesOffset = titleOffset["Lines"];
+  int linesOffset = getTitleOffset("Lines");
   string linesStr = vec[linesOffset];
   int lines = stoi(linesStr); // string to int C++11
   for (int i=1; i <= lines; ++i)
   {
     // if in interesting dates
-    int dateOffset = titleOffset["Date"];
+    int dateOffset = getTitleOffset("Date");
     string recDate = vec[dateOffset];
     if (vatDate->isInVatPeriod(recDate))
     {
@@ -214,13 +242,13 @@ PostAction ProcessSolarExport::processInvoiceVat(vector<string> &vec)
 
 PostAction ProcessSolarExport::processPurchaseVat(vector<string> &vec)
 {
-  int linesOffset = titleOffset["Lines"];
+  int linesOffset = getTitleOffset("Lines");
   string linesStr = vec[linesOffset];
   int lines = stoi(linesStr); // string to int C++11
   for (int i=1; i <= lines; ++i)
   {
     // if in interesting dates
-    int dateOffset = titleOffset["Date"];
+    int dateOffset = getTitleOffset("Date");
     string recDate = vec[dateOffset];
     if (vatDate->isInVatPeriod(recDate))
     {
@@ -315,4 +343,37 @@ void ProcessSolarExport::showAccumulation()
        << "VAT Reclaimable,"<<reclaimableAmount<< endl
        << "Total Sales," << incomeAmount << endl
        << "Total Purchases," <<purchasesAmount << endl;
+}
+
+
+
+
+
+// ========================== TEST HARNESS TOOLS ===========================
+
+
+// true if the title has been loaded
+bool ProcessSolarExport::isTitleKnown(const string &title)
+{
+  return titleOffset.find(title) != titleOffset.end();
+}
+
+
+// is this account known
+bool ProcessSolarExport::isAccountKnown(const string &accountName)
+{
+  return hierachy.find(accountName) != hierachy.end();
+}
+
+// returns topnode of account
+// string "Account Not known" if not there
+string ProcessSolarExport::getAccountTopNode(const string &childAccountName)
+{
+  string topNodeName("Account Not known");
+  map<string,string>::iterator itr = hierachy.find(childAccountName);
+  if (itr != hierachy.end())
+  {
+    topNodeName = itr->second;
+  }
+  return topNodeName;
 }

@@ -5,6 +5,9 @@
 #cd /home/toby/dev/solar/mtd-bridge/build ;  cmake --build . && cd ../src && ../build/prog
 
 
+#to run the tests
+#cd /home/toby/dev/solar/mtd-bridge/build ;  cmake --build . && tests/Solar100PcVatFreeBridge_tst 
+
 cmake_minimum_required(VERSION 3.14...3.23)
 project(
   Solar100PcVatFreeBridge

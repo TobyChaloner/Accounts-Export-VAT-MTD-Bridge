@@ -30,16 +30,25 @@ class ProcessSolarExport
   float reclaimableAmount;
   std::shared_ptr<VatDate> vatDate;
 
-public:
-  ProcessSolarExport(shared_ptr<VatDate> _vatDate): incomeAmount(0.0), incomeVatAmount(0.0),
-						    purchasesAmount(0.0),reclaimableAmount(0.0),
-						    vatDate(_vatDate)
-  {
-  };
   map<string,string> hierachy; // ends in one of two nodes - input or expense.  Top node is == self
   ifstream fstr;
   vector<string> titles; // titles of CSV columns
   map<string,int> titleOffset; // titles of CSV columns -> index
+
+  int offsetOfTitleType;
+  int offsetOfTitleName;
+  int offsetOfTitleGroupUnder;
+
+public:
+  ProcessSolarExport(shared_ptr<VatDate> _vatDate): incomeAmount(0.0), incomeVatAmount(0.0),
+						    purchasesAmount(0.0),reclaimableAmount(0.0),
+						    vatDate(_vatDate),
+						    offsetOfTitleType(-1),
+						    offsetOfTitleName(-1),
+						    offsetOfTitleGroupUnder(-1)
+  {
+  };
+  ~ProcessSolarExport();
 
 
   void open(const string &filename); // throws on issue
@@ -55,7 +64,20 @@ private:
   PostAction accumulateAllVatInformationLine(vector<string> &vec);
   PostAction processInvoiceVat(vector<string> &vec);
   PostAction processPurchaseVat(vector<string> &vec);
+  // get column index/offset containing this title
+  int getTitleOffset(const string title);
   float getAmount(vector<string> &vec, const string& prefix, int lineNo, const string& postfix);
+
+public:
+  // for testing only
+
+  // has a column with this title been read from the file?
+  bool isTitleKnown(const string &title);
+
+  // is this account known
+  bool isAccountKnown(const string &accountName);
+  // what it the top account name (eg expenses) for this account
+  string getAccountTopNode(const string &childAccountName);
 };
 
 
