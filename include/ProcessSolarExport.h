@@ -57,10 +57,10 @@ public:
   void accumulateAllVatInformation(); // assumes titles and accounts loaded.  accumulates vat
   void showAccumulation();
 
-  float getIncomeAmount() {return incomeAmount;};
-  float getIncomeVatAmount() {return incomeVatAmount;};
-  float getPurchasesAmount() {return purchasesAmount;};
-  float getReclaimableAmount() {return reclaimableAmount;};
+  float getVatDueOnSales() {return incomeVatAmount;};
+  float getVatReclaimable() {return reclaimableAmount;};
+  float getTotalSalesExVat() {return incomeAmount;};
+  float getTotalPurchasesExVat() {return purchasesAmount;};
   
 private:
   string findTopNode(const string &node);

@@ -1,16 +1,16 @@
-//#include <csv.h>
+#include <cmath>
 #include <string>
 #include <iostream>
 #include <sstream>
 #include <boost/tokenizer.hpp>
-
-
-using namespace std;
-
 #include "ProcessSolarExport.h"
 
+//#define DEBUG_PURCHASE 1
 
+using namespace std;
 using namespace boost;
+
+
 
 // trim from right
 // needed as exports from Windows have interesting line endings
@@ -253,26 +253,36 @@ PostAction ProcessSolarExport::processPurchaseVat(vector<string> &vec)
     if (vatDate->isInVatPeriod(recDate))
     {
       float amountIncVat = getAmount(vec, string("Line "), i, string(" Amount"));
-#if 0
-      cout << "purchase amount (inc VAT) "<< amountIncVat<<endl;
-#endif
       // Only VAT Rate is stored, amount needs to be calculated
       
       float vatPercent = getAmount(vec, string("Line "), i, string(" VAT Rate"));
-      float originalAmount(0.0);
+      float expenseExVat(0.0);
       float vatAmount(0.0);
+#if DEBUG_PURCHASE
+      cout << "purchase amount (inc any VAT): "<< amountIncVat<<endl;
+      cout << "VAT: "<< vatPercent<<"%"<<endl;
+#endif
+      expenseExVat = amountIncVat;  // assuming 0% VAT
       if (vatPercent > 0.0)
       {
-	// only interested in figures that have some VAT on them
-	originalAmount = amountIncVat * 100 / (100+vatPercent); // *100 to avoid truncation of floating point
-	vatAmount = amountIncVat - originalAmount;
-#if 0
-	cout << "VAT%  "<< vatPercent<<endl;
+	// only figures that have some VAT on them
+	expenseExVat = amountIncVat * 100 / (100+vatPercent); // *100 to avoid truncation of floating point
+#if DEBUG_PURCHASE
+	cout << "original amount  "<< expenseExVat<< " (un rounded)"<<endl;
+#endif
+	// Round up
+	expenseExVat *= 100.0; // to make a whole number
+	expenseExVat = round(expenseExVat);
+	expenseExVat /= 100.0; // move back to a pounds and pence number
+	// End Rounding
+	vatAmount = amountIncVat - expenseExVat;
+#if DEBUG_PURCHASE
 	cout << "VAT amount  "<< vatAmount<<endl;
 #endif
 	reclaimableAmount += vatAmount;
-	purchasesAmount += originalAmount;
       }
+      // figures with and without VAT are totalled up.
+      purchasesAmount += expenseExVat;
     }
   }
   return PostAction::not_finished;  
