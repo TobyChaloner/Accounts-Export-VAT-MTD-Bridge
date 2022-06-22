@@ -158,3 +158,29 @@ TEST(ProcessSolarExportTest, accumulateAllVatInformation1eOver10lines6v6n)
 }
 
 
+
+
+
+
+// ================== FRV ===================
+
+TEST(ProcessSolarExportTest, accumulateAllVatInformation_FRV_1i1e)
+{
+  shared_ptr<VatDate> vatDate = std::make_shared<VatDate>();
+
+  vatDate->setVatYearEndMonth(3); // year end month (Jan:1, Dec:12)
+  vatDate->setInterestingVatPeriodEnd(3,2020);
+  
+  ProcessSolarExport pse(vatDate);
+  pse.open("../src/data/Exported Data - MTD Test Set 1.csv");
+
+  pse.loadTitles();
+  pse.loadAccountsOnly();
+  pse.accumulateAllVatInformation();
+
+  EXPECT_FLOAT_EQ(pse.getVatDueOnSales(), 189.80);
+  EXPECT_FLOAT_EQ(pse.getVatReclaimable(), 0.0);
+  EXPECT_FLOAT_EQ(pse.getTotalSalesExVat(), 1460.00);
+  EXPECT_FLOAT_EQ(pse.getTotalPurchasesExVat(), 0.0);
+}
+

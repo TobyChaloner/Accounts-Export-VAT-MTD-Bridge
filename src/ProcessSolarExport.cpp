@@ -62,6 +62,8 @@ PostAction ProcessSolarExport::loadTitle(vector<string> &vec)
   offsetOfTitleType = getTitleOffset("Type");
   offsetOfTitleName = getTitleOffset("Name");
   offsetOfTitleGroupUnder = getTitleOffset("Group Under");
+  offsetOfLines = getTitleOffset("Lines");
+  offsetOfDate = getTitleOffset("Date");
 
   return PostAction::finish_done_record;  // only ever one record
 }
@@ -214,16 +216,35 @@ float ProcessSolarExport::getAmount(vector<string> &vec, const string& prefix, i
 */
 PostAction ProcessSolarExport::processInvoiceVat(vector<string> &vec)
 {
-  int linesOffset = getTitleOffset("Lines");
-  string linesStr = vec[linesOffset];
-  int lines = stoi(linesStr); // string to int C++11
-  for (int i=1; i <= lines; ++i)
+  float flatRateVAT(1.0);
+  bool isFlatRateVat(false);  // detect Flat Rate Flat
+  if (offsetOfFRV > 0 || isTitleKnown("VAT Flat Rate"))
   {
-    // if in interesting dates
-    int dateOffset = getTitleOffset("Date");
-    string recDate = vec[dateOffset];
-    if (vatDate->isInVatPeriod(recDate))
+    if (offsetOfFRV < 0)
     {
+      offsetOfFRV = getTitleOffset("VAT Flat Rate");
+    }
+    cout << "i vec.size()"<<vec.size()<<", offsetOfFRV"<<offsetOfFRV<<endl;
+    if (vec.size() > offsetOfFRV && !vec[offsetOfFRV].empty())
+    {
+      // get FRV %
+      string rateOfFRV = vec[offsetOfFRV];
+      rateOfFRV.erase(remove(rateOfFRV.begin(), rateOfFRV.end(), ','), rateOfFRV.end()); //remove , from string
+      rateOfFRV.erase(remove(rateOfFRV.begin(), rateOfFRV.end(), '%'), rateOfFRV.end()); //remove percent from string
+#if 1
+      cout << "rateOfFRV (string):"<<rateOfFRV<<endl;
+#endif
+      flatRateVAT = stof(rateOfFRV);
+    }
+  }   
+  string recDate = vec[offsetOfDate];
+  if (vatDate->isInVatPeriod(recDate))
+  {
+    string linesStr = vec[offsetOfLines];
+    int lines = stoi(linesStr); // string to int C++11
+    for (int i=1; i <= lines; ++i)
+    {
+      // if in interesting dates
       float amount = getAmount(vec, string("Line "), i, string(" Amount"));
 #if 0
       cout << "amount "<< amount<<endl;
@@ -232,8 +253,6 @@ PostAction ProcessSolarExport::processInvoiceVat(vector<string> &vec)
       float vatAmount = getAmount(vec, string("Line "), i, string(" VAT Amount"));
       incomeVatAmount += vatAmount;
     }
-    
-
   }
   return PostAction::not_finished;  
 }
@@ -242,15 +261,28 @@ PostAction ProcessSolarExport::processInvoiceVat(vector<string> &vec)
 
 PostAction ProcessSolarExport::processPurchaseVat(vector<string> &vec)
 {
-  int linesOffset = getTitleOffset("Lines");
-  string linesStr = vec[linesOffset];
-  int lines = stoi(linesStr); // string to int C++11
-  for (int i=1; i <= lines; ++i)
+  // detect Flat Rate Flat (don't accumulate)
+  if (offsetOfFRV > 0 || isTitleKnown("VAT Flat Rate"))
   {
-    // if in interesting dates
-    int dateOffset = getTitleOffset("Date");
-    string recDate = vec[dateOffset];
-    if (vatDate->isInVatPeriod(recDate))
+    if (offsetOfFRV < 0)
+    {
+      offsetOfFRV = getTitleOffset("VAT Flat Rate");
+    }
+    cout << "e vec.size()"<<vec.size()<<", offsetOfFRV"<<offsetOfFRV<<endl;
+    if (vec.size() > offsetOfFRV && !vec[offsetOfFRV].empty())
+    {
+      return PostAction::not_finished;
+    }
+  }   
+
+  // Non Flat Rate VAT..
+  // if in interesting dates
+  string recDate = vec[offsetOfDate];
+  if (vatDate->isInVatPeriod(recDate))
+  {
+    string linesStr = vec[offsetOfLines];
+    int lines = stoi(linesStr); // string to int C++11
+    for (int i=1; i <= lines; ++i)
     {
       float amountIncVat = getAmount(vec, string("Line "), i, string(" Amount"));
       // Only VAT Rate is stored, amount needs to be calculated

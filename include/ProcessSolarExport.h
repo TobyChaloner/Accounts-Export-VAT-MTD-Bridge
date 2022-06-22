@@ -38,6 +38,9 @@ class ProcessSolarExport
   int offsetOfTitleType;
   int offsetOfTitleName;
   int offsetOfTitleGroupUnder;
+  int offsetOfLines;
+  int offsetOfFRV;
+  int offsetOfDate;
 
 public:
   ProcessSolarExport(shared_ptr<VatDate> _vatDate): incomeAmount(0.0), incomeVatAmount(0.0),
@@ -45,7 +48,10 @@ public:
 						    vatDate(_vatDate),
 						    offsetOfTitleType(-1),
 						    offsetOfTitleName(-1),
-						    offsetOfTitleGroupUnder(-1)
+						    offsetOfTitleGroupUnder(-1),
+						    offsetOfLines(-1),
+						    offsetOfFRV(-1),
+						    offsetOfDate(-1)
   {
   };
   ~ProcessSolarExport();
@@ -61,7 +67,10 @@ public:
   float getVatReclaimable() {return reclaimableAmount;};
   float getTotalSalesExVat() {return incomeAmount;};
   float getTotalPurchasesExVat() {return purchasesAmount;};
-  
+
+    // has a column with this title been read from the file?
+  bool isTitleKnown(const string &title);
+
 private:
   string findTopNode(const string &node);
   PostAction loadAccountsLine(vector<string> &vec);
@@ -77,8 +86,6 @@ private:
 public:
   // for testing only
 
-  // has a column with this title been read from the file?
-  bool isTitleKnown(const string &title);
 
   // is this account known
   bool isAccountKnown(const string &accountName);
