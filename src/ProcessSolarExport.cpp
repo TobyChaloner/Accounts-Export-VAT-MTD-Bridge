@@ -1,17 +1,17 @@
-//#include <csv.h>
+#include <cmath>
 #include <string>
 #include <iostream>
 #include <sstream>
-#include <fstream>
 #include <boost/tokenizer.hpp>
-
-
-using namespace std;
-
 #include "ProcessSolarExport.h"
 
+//#define DEBUG_PURCHASE 1
+//#define DEBUG_INVOICE 1
 
+using namespace std;
 using namespace boost;
+
+
 
 // trim from right
 // needed as exports from Windows have interesting line endings
@@ -34,6 +34,17 @@ void ProcessSolarExport::open(const string &filename)
 
 
 
+ProcessSolarExport::~ProcessSolarExport()
+{
+  if (fstr.is_open())
+  {
+    fstr.close();
+  }
+}
+
+
+
+
 void ProcessSolarExport::loadTitles()
 {
   loadFromRecords(&ProcessSolarExport::loadTitle); 
@@ -43,16 +54,26 @@ void ProcessSolarExport::loadTitles()
 
 PostAction ProcessSolarExport::loadTitle(vector<string> &vec)
 {
-  for(const auto& title: vec) {
+  for(const auto& title: vec)
+  {
     titles.push_back(title);
     titleOffset[title] = titles.size() - 1;
   }
- 
+
+  // load into frequently used title lookup caches
+  offsetOfTitleType = getTitleOffset("Type");
+  offsetOfTitleName = getTitleOffset("Name");
+  offsetOfTitleGroupUnder = getTitleOffset("Group Under");
+  offsetOfLines = getTitleOffset("Lines");
+  offsetOfDate = getTitleOffset("Date");
+
   return PostAction::finish_done_record;  // only ever one record
 }
 
 
-
+// in the hierachy of account groups containing account goups
+// and account groups containing accounts.
+// We really only want to associate accounts with the top account group
 string ProcessSolarExport::findTopNode(const string &node)
 {
   auto it = hierachy.find(node);
@@ -61,8 +82,6 @@ string ProcessSolarExport::findTopNode(const string &node)
     string msg = "map did not contain node " + node;
     throw (runtime_error(msg));
   }
-  
-
   // simplest case node = node === top node
   if (it->second == node)
   {
@@ -70,8 +89,6 @@ string ProcessSolarExport::findTopNode(const string &node)
   }
   // recurse on node
   return findTopNode(it->second);
-
-
 }
 
 
@@ -88,22 +105,28 @@ PostAction ProcessSolarExport::loadAccountsLine(vector<string> &vec)
   const int lenPrefix(accountPrefix.size());
   const string accountGroupPrefix("Account Group");
   const int lenGroupPrefix(accountGroupPrefix.size());
-  if (vec[0] == accountGroupPrefix)
+  
+  if (vec[offsetOfTitleType] == accountGroupPrefix)
   {
     // its a group
-    // its either a top node, or a sub node.  top nodes have 3 fields, subnodes have more
-    if (vec.size() == 3)
+
+    // there are two types of group record.
+    // One that is a topnode (no or blank 'Group Under') and a sub node, which has a 'Group Under'
+    // the Group Under need to recurse back to their topnode.
+    
+    // its either a top node, or a sub node.  top nodes have fewer fields than subnodes
+    if (vec.size() < offsetOfTitleGroupUnder+1 || vec[offsetOfTitleGroupUnder] == string(""))
     {
-      string name = rtrim(vec[1]);
+      // need rtrim to loose any MS Windows line endings
+      string name = rtrim(vec[offsetOfTitleName]); 
       // top node
       hierachy[name] = name;
     }
     else
     {
-      string name = rtrim(vec[1]);
-      string parent = rtrim(vec[3]);
+      string name =   rtrim(vec[offsetOfTitleName]);
+      string parent = rtrim(vec[offsetOfTitleGroupUnder]);
 	
-      // size is 4
       // flatten hierachy, so all nodes point to their top node.  i.e. Expenses point to Expenses
       string topNode = findTopNode(parent);
       hierachy[name] = topNode; 
@@ -111,10 +134,10 @@ PostAction ProcessSolarExport::loadAccountsLine(vector<string> &vec)
   }
 
   // looking at an account
-  else if (vec[0] == accountPrefix)
+  else if (vec[offsetOfTitleType] == accountPrefix)
   {
     // an account needs to be identified as an Expenses or Income account
-    string topNode = findTopNode(vec[3]);
+    string topNode = findTopNode(vec[offsetOfTitleGroupUnder]);
     hierachy[vec[1]] = topNode; 
   }
   else
@@ -139,17 +162,31 @@ void ProcessSolarExport::accumulateAllVatInformation()
 
 PostAction ProcessSolarExport::accumulateAllVatInformationLine(vector<string> &vec)
 {
-  if (vec[0] == "Invoice")
+  if (vec[offsetOfTitleType] == "Invoice")
   {
     processInvoiceVat(vec);
   }
-  if (vec[0] == "Money Paid Out")
+  if (vec[offsetOfTitleType] == "Money Paid Out")
   {
     processPurchaseVat(vec);
   }
   return PostAction::not_finished;  
   
 }
+
+
+// get column index/offset containing this title
+int ProcessSolarExport::getTitleOffset(const string title)
+{
+    auto it = titleOffset.find(title);
+    if (it == titleOffset.end())
+    {
+      string msg = "titles map did not contain node " + title;
+      throw (runtime_error(msg));
+    }
+    return it->second;  
+}
+
 
 
 // lineNo eg Line 1 VAT Amount so 1
@@ -160,14 +197,7 @@ float ProcessSolarExport::getAmount(vector<string> &vec, const string& prefix, i
 #if 0
     cout << "Lookingup:"<<ss.str()<<"-"<<endl;
 #endif    
-    auto it = titleOffset.find(ss.str());
-    if (it == titleOffset.end())
-    {
-      string msg = "titles map did not contain node " + ss.str();
-      throw (runtime_error(msg));
-    }
-
-    int offset = it->second;
+    int offset = getTitleOffset(ss.str());
     string AmountStr = vec[offset];
 
     const char poundSymbol = '\243';
@@ -186,26 +216,64 @@ float ProcessSolarExport::getAmount(vector<string> &vec, const string& prefix, i
 */
 PostAction ProcessSolarExport::processInvoiceVat(vector<string> &vec)
 {
-  int linesOffset = titleOffset["Lines"];
-  string linesStr = vec[linesOffset];
-  int lines = stoi(linesStr); // string to int C++11
-  for (int i=1; i <= lines; ++i)
+  float flatRateVAT(-1.0);
+  bool isFlatRateVat(false);  // detect Flat Rate Flat
+  if (offsetOfFRV > 0 || isTitleKnown("VAT Flat Rate"))
   {
-    // if in interesting dates
-    int dateOffset = titleOffset["Date"];
-    string recDate = vec[dateOffset];
-    if (vatDate->isInVatPeriod(recDate))
+    if (offsetOfFRV < 0)
     {
+      offsetOfFRV = getTitleOffset("VAT Flat Rate");
+    }
+#if DEBUG_INVOICE
+    cout << "i vec.size()"<<vec.size()<<", offsetOfFRV"<<offsetOfFRV<<endl;
+#endif
+    if (vec.size() > offsetOfFRV && !vec[offsetOfFRV].empty())
+    {
+      // get FRV %
+      string rateOfFRV = vec[offsetOfFRV];
+      rateOfFRV.erase(remove(rateOfFRV.begin(), rateOfFRV.end(), ','), rateOfFRV.end()); //remove , from string
+      rateOfFRV.erase(remove(rateOfFRV.begin(), rateOfFRV.end(), '%'), rateOfFRV.end()); //remove percent from string
+#if DEBUG_INVOICE
+      cout << "rateOfFRV (string):"<<rateOfFRV<<endl;
+#endif
+      flatRateVAT = stof(rateOfFRV);
+      isFlatRateVat = true;
+    }
+  }   
+  string recDate = vec[offsetOfDate];
+  if (vatDate->isInVatPeriod(recDate))
+  {
+    string linesStr = vec[offsetOfLines];
+    int lines = stoi(linesStr); // string to int C++11
+    for (int i=1; i <= lines; ++i)
+    {
+      // if in interesting dates
       float amount = getAmount(vec, string("Line "), i, string(" Amount"));
-#if 0
+#if DEBUG_INVOICE
       cout << "amount "<< amount<<endl;
 #endif
+      float vatAmount(-1.0);
+      if (!isFlatRateVat)
+      {
+	// normal VAT (not FRV)
+	vatAmount = getAmount(vec, string("Line "), i, string(" VAT Amount"));
+	incomeVatAmount += vatAmount;
+      }
+      else // FRV
+      {
+	// ref https://www.gov.uk/vat-flat-rate-scheme/how-much-you-pay
+	// We add the normal (non-FRV) vat amount to the 'incomeAmount' aka 'SalesExcludingVat'
+	// the FRV is a % of that
+	vatAmount = getAmount(vec, string("Line "), i, string(" VAT Amount"));
+	amount += vatAmount; // adding VAT to the non-VAT amount
+	float frvAmount = amount * flatRateVAT / 100.0;
+	frvAmount *= 100.0; // move left to make a whole number
+	frvAmount = round(frvAmount);
+	frvAmount /= 100.0; // move back, making two decimal point numbers
+	incomeVatAmount += frvAmount;
+      }
       incomeAmount += amount;
-      float vatAmount = getAmount(vec, string("Line "), i, string(" VAT Amount"));
-      incomeVatAmount += vatAmount;
     }
-    
-
   }
   return PostAction::not_finished;  
 }
@@ -214,37 +282,60 @@ PostAction ProcessSolarExport::processInvoiceVat(vector<string> &vec)
 
 PostAction ProcessSolarExport::processPurchaseVat(vector<string> &vec)
 {
-  int linesOffset = titleOffset["Lines"];
-  string linesStr = vec[linesOffset];
-  int lines = stoi(linesStr); // string to int C++11
-  for (int i=1; i <= lines; ++i)
+  // detect Flat Rate Flat (don't accumulate)
+  if (offsetOfFRV > 0 || isTitleKnown("VAT Flat Rate"))
   {
-    // if in interesting dates
-    int dateOffset = titleOffset["Date"];
-    string recDate = vec[dateOffset];
-    if (vatDate->isInVatPeriod(recDate))
+    if (offsetOfFRV < 0)
+    {
+      offsetOfFRV = getTitleOffset("VAT Flat Rate");
+    }
+    //cout << "e vec.size()"<<vec.size()<<", offsetOfFRV"<<offsetOfFRV<<endl;
+    if (vec.size() > offsetOfFRV && !vec[offsetOfFRV].empty())
+    {
+      return PostAction::not_finished;
+    }
+  }   
+
+  // Non Flat Rate VAT..
+  // if in interesting dates
+  string recDate = vec[offsetOfDate];
+  if (vatDate->isInVatPeriod(recDate))
+  {
+    string linesStr = vec[offsetOfLines];
+    int lines = stoi(linesStr); // string to int C++11
+    for (int i=1; i <= lines; ++i)
     {
       float amountIncVat = getAmount(vec, string("Line "), i, string(" Amount"));
-#if 0
-      cout << "purchase amount (inc VAT) "<< amountIncVat<<endl;
-#endif
       // Only VAT Rate is stored, amount needs to be calculated
       
       float vatPercent = getAmount(vec, string("Line "), i, string(" VAT Rate"));
-      float originalAmount(0.0);
+      float expenseExVat(0.0);
       float vatAmount(0.0);
+#if DEBUG_PURCHASE
+      cout << "purchase amount (inc any VAT): "<< amountIncVat<<endl;
+      cout << "VAT: "<< vatPercent<<"%"<<endl;
+#endif
+      expenseExVat = amountIncVat;  // assuming 0% VAT
       if (vatPercent > 0.0)
       {
-	// only interested in figures that have some VAT on them
-	originalAmount = amountIncVat * 100 / (100+vatPercent); // *100 to avoid truncation of floating point
-	vatAmount = amountIncVat - originalAmount;
-#if 0
-	cout << "VAT%  "<< vatPercent<<endl;
+	// only figures that have some VAT on them
+	expenseExVat = amountIncVat * 100 / (100+vatPercent); // *100 to avoid truncation of floating point
+#if DEBUG_PURCHASE
+	cout << "original amount  "<< expenseExVat<< " (un rounded)"<<endl;
+#endif
+	// Round up
+	expenseExVat *= 100.0; // to make a whole number
+	expenseExVat = round(expenseExVat);
+	expenseExVat /= 100.0; // move back to a pounds and pence number
+	// End Rounding
+	vatAmount = amountIncVat - expenseExVat;
+#if DEBUG_PURCHASE
 	cout << "VAT amount  "<< vatAmount<<endl;
 #endif
 	reclaimableAmount += vatAmount;
-	purchasesAmount += originalAmount;
       }
+      // figures with and without VAT are totalled up.
+      purchasesAmount += expenseExVat;
     }
   }
   return PostAction::not_finished;  
@@ -315,4 +406,37 @@ void ProcessSolarExport::showAccumulation()
        << "VAT Reclaimable,"<<reclaimableAmount<< endl
        << "Total Sales," << incomeAmount << endl
        << "Total Purchases," <<purchasesAmount << endl;
+}
+
+
+
+
+
+// ========================== TEST HARNESS TOOLS ===========================
+
+
+// true if the title has been loaded
+bool ProcessSolarExport::isTitleKnown(const string &title)
+{
+  return titleOffset.find(title) != titleOffset.end();
+}
+
+
+// is this account known
+bool ProcessSolarExport::isAccountKnown(const string &accountName)
+{
+  return hierachy.find(accountName) != hierachy.end();
+}
+
+// returns topnode of account
+// string "Account Not known" if not there
+string ProcessSolarExport::getAccountTopNode(const string &childAccountName)
+{
+  string topNodeName("Account Not known");
+  map<string,string>::iterator itr = hierachy.find(childAccountName);
+  if (itr != hierachy.end())
+  {
+    topNodeName = itr->second;
+  }
+  return topNodeName;
 }

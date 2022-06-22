@@ -86,7 +86,6 @@ int main(int argc, char *argv[])
     processArgs(argc, argv);
     shared_ptr<VatDate> vatDate = std::make_shared<VatDate>();
     vatDate->setVatYearEndMonth(vatYearEndMonth);
-    //vatDate->setInterestingVatPeriodEnd(05,2022); // TODO
     vatDate->setInterestingVatPeriodAsOneBeforeCurrent();
 
     ProcessSolarExport processor(vatDate);
@@ -96,6 +95,10 @@ int main(int argc, char *argv[])
     processor.accumulateAllVatInformation();
     processor.showAccumulation();
 
+    vatOnSales = processor.getVatDueOnSales();
+    vatReclaimable = processor.getVatReclaimable();
+    totalSales = processor.getTotalSalesExVat();
+    totalPurchases = processor.getTotalPurchasesExVat();
     
     outputter.writeFile(outFilename,
 			vatOnSales,
