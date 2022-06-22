@@ -6,6 +6,7 @@
 #include "ProcessSolarExport.h"
 
 //#define DEBUG_PURCHASE 1
+//#define DEBUG_INVOICE 1
 
 using namespace std;
 using namespace boost;
@@ -59,6 +60,7 @@ PostAction ProcessSolarExport::loadTitle(vector<string> &vec)
     titleOffset[title] = titles.size() - 1;
   }
 
+  // load into frequently used title lookup caches
   offsetOfTitleType = getTitleOffset("Type");
   offsetOfTitleName = getTitleOffset("Name");
   offsetOfTitleGroupUnder = getTitleOffset("Group Under");
@@ -69,7 +71,9 @@ PostAction ProcessSolarExport::loadTitle(vector<string> &vec)
 }
 
 
-
+// in the hierachy of account groups containing account goups
+// and account groups containing accounts.
+// We really only want to associate accounts with the top account group
 string ProcessSolarExport::findTopNode(const string &node)
 {
   auto it = hierachy.find(node);
@@ -78,8 +82,6 @@ string ProcessSolarExport::findTopNode(const string &node)
     string msg = "map did not contain node " + node;
     throw (runtime_error(msg));
   }
-  
-
   // simplest case node = node === top node
   if (it->second == node)
   {
@@ -87,8 +89,6 @@ string ProcessSolarExport::findTopNode(const string &node)
   }
   // recurse on node
   return findTopNode(it->second);
-
-
 }
 
 
@@ -110,21 +110,21 @@ PostAction ProcessSolarExport::loadAccountsLine(vector<string> &vec)
   {
     // its a group
 
-    // there are two types of group record.  One that is a topnode (no or blank 'Group Under') and a sub node, which has a 'Group Under'
+    // there are two types of group record.
+    // One that is a topnode (no or blank 'Group Under') and a sub node, which has a 'Group Under'
     // the Group Under need to recurse back to their topnode.
-
-    
     
     // its either a top node, or a sub node.  top nodes have fewer fields than subnodes
     if (vec.size() < offsetOfTitleGroupUnder+1 || vec[offsetOfTitleGroupUnder] == string(""))
     {
-      string name = rtrim(vec[offsetOfTitleName]);
+      // need rtrim to loose any MS Windows line endings
+      string name = rtrim(vec[offsetOfTitleName]); 
       // top node
       hierachy[name] = name;
     }
     else
     {
-      string name = rtrim(vec[offsetOfTitleName]);
+      string name =   rtrim(vec[offsetOfTitleName]);
       string parent = rtrim(vec[offsetOfTitleGroupUnder]);
 	
       // flatten hierachy, so all nodes point to their top node.  i.e. Expenses point to Expenses
@@ -216,7 +216,7 @@ float ProcessSolarExport::getAmount(vector<string> &vec, const string& prefix, i
 */
 PostAction ProcessSolarExport::processInvoiceVat(vector<string> &vec)
 {
-  float flatRateVAT(1.0);
+  float flatRateVAT(-1.0);
   bool isFlatRateVat(false);  // detect Flat Rate Flat
   if (offsetOfFRV > 0 || isTitleKnown("VAT Flat Rate"))
   {
@@ -224,17 +224,20 @@ PostAction ProcessSolarExport::processInvoiceVat(vector<string> &vec)
     {
       offsetOfFRV = getTitleOffset("VAT Flat Rate");
     }
+#if DEBUG_INVOICE
     cout << "i vec.size()"<<vec.size()<<", offsetOfFRV"<<offsetOfFRV<<endl;
+#endif
     if (vec.size() > offsetOfFRV && !vec[offsetOfFRV].empty())
     {
       // get FRV %
       string rateOfFRV = vec[offsetOfFRV];
       rateOfFRV.erase(remove(rateOfFRV.begin(), rateOfFRV.end(), ','), rateOfFRV.end()); //remove , from string
       rateOfFRV.erase(remove(rateOfFRV.begin(), rateOfFRV.end(), '%'), rateOfFRV.end()); //remove percent from string
-#if 1
+#if DEBUG_INVOICE
       cout << "rateOfFRV (string):"<<rateOfFRV<<endl;
 #endif
       flatRateVAT = stof(rateOfFRV);
+      isFlatRateVat = true;
     }
   }   
   string recDate = vec[offsetOfDate];
@@ -246,12 +249,30 @@ PostAction ProcessSolarExport::processInvoiceVat(vector<string> &vec)
     {
       // if in interesting dates
       float amount = getAmount(vec, string("Line "), i, string(" Amount"));
-#if 0
+#if DEBUG_INVOICE
       cout << "amount "<< amount<<endl;
 #endif
+      float vatAmount(-1.0);
+      if (!isFlatRateVat)
+      {
+	// normal VAT (not FRV)
+	vatAmount = getAmount(vec, string("Line "), i, string(" VAT Amount"));
+	incomeVatAmount += vatAmount;
+      }
+      else // FRV
+      {
+	// ref https://www.gov.uk/vat-flat-rate-scheme/how-much-you-pay
+	// We add the normal (non-FRV) vat amount to the 'incomeAmount' aka 'SalesExcludingVat'
+	// the FRV is a % of that
+	vatAmount = getAmount(vec, string("Line "), i, string(" VAT Amount"));
+	amount += vatAmount; // adding VAT to the non-VAT amount
+	float frvAmount = amount * flatRateVAT / 100.0;
+	frvAmount *= 100.0; // move left to make a whole number
+	frvAmount = round(frvAmount);
+	frvAmount /= 100.0; // move back, making two decimal point numbers
+	incomeVatAmount += frvAmount;
+      }
       incomeAmount += amount;
-      float vatAmount = getAmount(vec, string("Line "), i, string(" VAT Amount"));
-      incomeVatAmount += vatAmount;
     }
   }
   return PostAction::not_finished;  
@@ -268,7 +289,7 @@ PostAction ProcessSolarExport::processPurchaseVat(vector<string> &vec)
     {
       offsetOfFRV = getTitleOffset("VAT Flat Rate");
     }
-    cout << "e vec.size()"<<vec.size()<<", offsetOfFRV"<<offsetOfFRV<<endl;
+    //cout << "e vec.size()"<<vec.size()<<", offsetOfFRV"<<offsetOfFRV<<endl;
     if (vec.size() > offsetOfFRV && !vec[offsetOfFRV].empty())
     {
       return PostAction::not_finished;
