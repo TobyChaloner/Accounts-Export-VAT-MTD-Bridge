@@ -1,0 +1,151 @@
+Type,Name,Group Under,Opening Balance,Bill To Address,Ship To Address,Export Row ID,Date,ID,Memo,Address,Counterparty Reference,Edit Inc VAT,VAT Treatment ID,VAT Force Non Cash,Lines,Line 1 Description,Line 1 Quantity,Line 1 Account,Line 1 Unit Price,Line 1 Amount,Line 1 VAT Amount,Line 1 VAT Rate,Line 2 Description,Line 2 Quantity,Line 2 Account,Line 2 Unit Price,Line 2 Amount,Line 2 VAT Amount,Line 2 VAT Rate,Line 3 Description,Line 3 Quantity,Line 3 Account,Line 3 Unit Price,Line 3 Amount,Line 3 VAT Amount,Line 3 VAT Rate,Line 4 Description,Line 4 Quantity,Line 4 Account,Line 4 Unit Price,Line 4 Amount,Line 4 VAT Amount,Line 4 VAT Rate,Line 5 Description,Line 5 Quantity,Line 5 Account,Line 5 Unit Price,Line 5 Amount,Line 5 VAT Amount,Line 5 VAT Rate,Line 6 Description,Line 6 Quantity,Line 6 Account,Line 6 Unit Price,Line 6 Amount,Line 6 VAT Amount,Line 6 VAT Rate,Line 7 Description,Line 7 Quantity,Line 7 Account,Line 7 Unit Price,Line 7 Amount,Line 7 VAT Amount,Line 7 VAT Rate,Line 8 Description,Line 8 Quantity,Line 8 Account,Line 8 Unit Price,Line 8 Amount,Line 8 VAT Amount,Line 8 VAT Rate,Line 9 Description,Line 9 Quantity,Line 9 Account,Line 9 Unit Price,Line 9 Amount,Line 9 VAT Amount,Line 9 VAT Rate,Line 10 Description,Line 10 Quantity,Line 10 Account,Line 10 Unit Price,Line 10 Amount,Line 10 VAT Amount,Line 10 VAT Rate,Line 11 Description,Line 11 Quantity,Line 11 Account,Line 11 Unit Price,Line 11 Amount,Line 11 VAT Amount,Line 11 VAT Rate,Line 12 Description,Line 12 Quantity,Line 12 Account,Line 12 Unit Price,Line 12 Amount,Line 12 VAT Amount,Line 12 VAT Rate,VAT Flat Rate,Account
+Account Group,Assets
+Account,Accounts Receivable,Assets,£0.00
+Account Group,Cash On Hand,Assets
+Account,Money To Be Banked,Cash On Hand,£0.00
+Account,Petty Cash,Cash On Hand,£0.00
+Account,Cheque Account,Assets,£0.00
+Account,Motor Vehicles,Assets,£0.00
+Account Group,Liabilities
+Account,Accounts Payable,Liabilities,£0.00
+Account,Bank Loans,Liabilities,£0.00
+Account Group,Credit Cards,Liabilities
+Account,Mastercard,Credit Cards,£0.00
+Account,Visa,Credit Cards,£0.00
+Account Group,Tax Liabilities,Liabilities
+Account,Income Tax and NI Liability,Tax Liabilities,£0.00
+Account,VAT Liability,Tax Liabilities,£0.00
+Account Group,Equity
+Account,Balancing Account,Equity,£0.00
+Account,Current Earnings,Equity,£0.00
+Account Group,Owner's Equity,Equity
+Account,Owner's Capital,Owner's Equity,£0.00
+Account,Owner's Drawings and Personal Use,Owner's Equity,£0.00
+Account,Retained Earnings,Equity,£0.00
+Account Group,Income
+Account,Bank Interest,Income,£0.00
+Account,Gain (or Loss) due to Flat Rate VAT,Income,£0.00
+Account Group,Project 1 below,Income
+Account,Account income 2 below,Project 1 below,£0.00
+Account,Sales Income,Income,£0.00
+Account,Shipping Fees Collected,Income,£0.00
+Account,Uncategorised Income,Income,£0.00
+Account Group,Expenses
+Account Group,Direct Costs,Expenses
+Account,Cost of Goods Sold,Direct Costs,£0.00
+Account,Subcontractor Costs,Direct Costs,£0.00
+Account,One below expense,Expenses,£0.00
+Account Group,Overheads,Expenses
+Account,"Accounting, Legal and Professional Services",Overheads,£0.00
+Account,Advertising and Entertainment,Overheads,£0.00
+Account,Bad Debts Expense,Overheads,£0.00
+Account,Depreciation and Loss on Sale,Overheads,£0.00
+Account,Employee Costs,Overheads,£0.00
+Account Group,Finance Costs,Overheads
+Account,Bank Fees,Finance Costs,£0.00
+Account,Interest Charges,Finance Costs,£0.00
+Account Group,General Administrative Expenses,Overheads
+Account,General Office Costs,General Administrative Expenses,£0.00
+Account,Postage and Stationery,General Administrative Expenses,£0.00
+Account,Telephone and Internet,General Administrative Expenses,£0.00
+Account,Motor Expenses,Overheads,£0.00
+Account Group,Premises Costs,Overheads
+Account,Electricity,Premises Costs,£0.00
+Account,Gas,Premises Costs,£0.00
+Account,Property Insurance,Premises Costs,£0.00
+Account,Rent,Premises Costs,£0.00
+Account,Water Rates,Premises Costs,£0.00
+Account,Repairs,Overheads,£0.00
+Account,Travel,Overheads,£0.00
+Account,Uncategorised Expenses,Overheads,£0.00
+Customer,Customer 1,,,"13 Naffield Street
+Smorasboard
+London
+SE13 5PP","13 Naffield Street
+Smorasboard
+London
+SE13 5PP",4970910
+Supplier,Supplier 1,,,"PO Box 555
+Salford
+Madagascar
+","PO Box 555
+Salford
+Madagascar
+",4970961
+Invoice,Customer 1,,,,,,19/01/2010,INV1,Sale; Customer 1,"Customer 1
+13 Naffield Street
+Smorasboard
+London
+SE13 5PP",,false,1,false,3,With VAT,1,Sales Income,"£1,000.00","£1,000.00",£200.00,20%,Second VAT,1,Sales Income,£200.00,£200.00,£10.00,5%,No VAT (Post),1,Sales Income,£50.00,£50.00,£0.00,0%
+Invoice,Customer 1,,,,,,19/07/2010,INV2,Sale; Customer 1,"Customer 1
+13 Naffield Street
+Smorasboard
+London
+SE13 5PP",,false,1,false,12,With VAT,1,Sales Income,"£1,000.00","£1,000.00",£200.00,20%,Second VAT,1,Sales Income,£200.00,£200.00,£10.00,5%,VAT 3,1,Sales Income,£400.00,£400.00,£20.00,5%,VAT 4,1,Sales Income,£400.00,£400.00,£20.00,5%,VAT 5,1,Sales Income,£600.00,£600.00,£30.00,5%,VAT 6,1,Sales Income,£400.00,£400.00,£20.00,5%,Without 1,1,Sales Income,£50.00,£50.00,£0.00,0%,Without 2,1,Sales Income,£60.00,£60.00,£0.00,0%,Without 3,1,Sales Income,£70.00,£70.00,£0.00,0%,Without 4,1,Sales Income,£80.00,£80.00,£0.00,0%,Without 5,1,Sales Income,£90.00,£90.00,£0.00,0%,Without 6,1,Sales Income,£100.00,£100.00,£0.00,0%
+Invoice,Customer 1,,,,,,06/01/2011,INV3,multi inv 1 of 3,"Customer 1
+13 Naffield Street
+Smorasboard
+London
+SE13 5PP",,false,1,false,2,With VAT,1,Sales Income,"£5,666.23","£5,666.23","£1,133.25",20%,No VAT (Post),1,Sales Income,£456.67,£456.67,£0.00,0%
+Invoice,Customer 1,,,,,,10/02/2011,INV4,multi inv 2 of 3,"Customer 1
+13 Naffield Street
+Smorasboard
+London
+SE13 5PP",,false,1,false,1,With VAT,1,Sales Income,"£3,542.25","£3,542.25",£708.45,20%
+Invoice,Customer 1,,,,,,25/03/2011,INV5,multi inv 3 of 3,"Customer 1
+13 Naffield Street
+Smorasboard
+London
+SE13 5PP",,false,1,false,1,No VAT (Post),1,Sales Income,£875.53,£875.53,£0.00,0%
+Invoice,Customer 1,,,,,,01/02/2012,INV6,account 2 below income,"Customer 1
+13 Naffield Street
+Smorasboard
+London
+SE13 5PP",,false,1,false,1,account 2 below,1,Account income 2 below,£546.00,£546.00,£109.20,20%
+Invoice,Customer 1,,,,,,01/05/2012,INV7,account 2 below income (1o2),"Customer 1
+13 Naffield Street
+Smorasboard
+London
+SE13 5PP",,false,1,false,1,account 2 below,1,Account income 2 below,£657.26,£657.26,£131.45,20%
+Invoice,Customer 1,,,,,,01/04/2012,INV8,account 2 below income (2o2),"Customer 1
+13 Naffield Street
+Smorasboard
+London
+SE13 5PP",,false,1,false,1,account 2 below,1,Account income 2 below,£324.98,£324.98,£65.00,20%
+Invoice,Customer 1,,,,,,01/02/2012,INV9,income account 1 below,"Customer 1
+13 Naffield Street
+Smorasboard
+London
+SE13 5PP",,false,1,false,3,With VAT,1,Sales Income,£456.25,£456.25,£91.25,20%,Second VAT,1,Sales Income,£678.89,£678.89,£33.94,5%,No VAT (Post),1,Sales Income,£546.44,£546.44,£0.00,0%
+Invoice,Customer 1,,,,,,20/02/2020,INV10,Flat Rate VAT 1,"Customer 1
+13 Naffield Street
+Smorasboard
+London
+SE13 5PP",FRV,false,1,false,3,With VAT,1,Sales Income,"£1,000.00","£1,000.00",£200.00,20%,Second VAT,1,Sales Income,£200.00,£200.00,£10.00,5%,No VAT (Post),1,Sales Income,£50.00,£50.00,£0.00,0%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,13%
+Invoice,Customer 1,,,,,,20/06/2020,INV11,Flat Rate VAT 2,"Customer 1
+13 Naffield Street
+Smorasboard
+London
+SE13 5PP",FRV,false,1,false,3,With VAT,1,Sales Income,£548.69,£548.69,£109.74,20%,Second VAT,1,Sales Income,£56.00,£56.00,£2.80,5%,No VAT (Post),1,Sales Income,£25.69,£25.69,£0.00,0%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,13%
+Invoice,Customer 1,,,,,,20/05/2020,INV12,Flat Rate VAT 2 2o2,"Customer 1
+13 Naffield Street
+Smorasboard
+London
+SE13 5PP",FRV,false,1,false,3,With VAT,1,Sales Income,£543.25,£543.25,£108.65,20%,Second VAT,1,Sales Income,£48.36,£48.36,£2.42,5%,No VAT (Post),1,Sales Income,£52.67,£52.67,£0.00,0%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,13%
+Invoice,Customer 1,,,,,,24/03/2022,INV13,"post FRV, normal VAT","Customer 1
+13 Naffield Street
+Smorasboard
+London
+SE13 5PP",,false,1,false,1,"post FRV, normal VAT",1,Account income 2 below,£546.00,£546.00,£109.20,20%
+Money Paid Out,Supplier 1,,,,,,19/04/2010,PAY1,MPO 2 with VAT + 1 without ; Supplier 1,,,,9,,3,,,"Accounting, Legal and Professional Services",,£240.00,,20%,,,"Accounting, Legal and Professional Services",,£360.00,,20%,,,Postage and Stationery,,£10.00,,0%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Cheque Account
+Money Paid Out,Supplier 1,,,,,,19/10/2010,PAY2,Over 10 lines,,,,9,,12,,,"Accounting, Legal and Professional Services",,£240.00,,20%,,,"Accounting, Legal and Professional Services",,£360.00,,20%,,,Postage and Stationery,,£10.00,,0%,,,Motor Expenses,,£40.00,,20%,,,Electricity,,£800.00,,20%,,,Rent,,£555.00,,20%,,,Travel,,£78.00,,20%,,,Employee Costs,,£40.00,,20%,,,Bank Fees,,£77.00,,0%,,,Subcontractor Costs,,£60.00,,20%,,,General Office Costs,,£66.00,,20%,,,Advertising and Entertainment,,£10.00,,20%,,Cheque Account
+Money Paid Out,Supplier 1,,,,,,04/04/2011,PAY3,Multi Expense 1 of 3 with VAT + 1 without ; Supplier 1,,,,9,,2,,,"Accounting, Legal and Professional Services",,£983.78,,20%,,,Postage and Stationery,,£100.00,,0%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Cheque Account
+Money Paid Out,Supplier 1,,,,,,05/05/2011,PAY4,Multi Expense 2 of 3 with VAT + 1 without ; Supplier 1,,,,9,,1,,,"Accounting, Legal and Professional Services",,£983.78,,20%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Cheque Account
+Money Paid Out,Supplier 1,,,,,,06/06/2011,PAY5,Multi Expense 3 of 3 with VAT + 1 without ; Supplier 1,,,,9,,1,,,Postage and Stationery,,£150.00,,0%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Cheque Account
+Money Paid Out,Supplier 1,,,,,,01/01/2012,PAY6,1 account below expense,,,,9,,1,,,One below expense,,£240.00,,20%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Cheque Account
+Money Paid Out,Supplier 1,,,,,,02/01/2012,PAY7,2 account below expense,,,,9,,1,,,"Accounting, Legal and Professional Services",,£240.00,,20%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Cheque Account
+Money Paid Out,Supplier 1,,,,,,03/01/2012,PAY8,3 account below expense,,,,9,,1,,,Bank Fees,,£500.00,,0%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Cheque Account
+Money Paid Out,Supplier 1,,,,,,20/02/2020,PAY9,FRV: MPO 2 with VAT + 1 without ; Supplier 1,,,,9,,3,,,"Accounting, Legal and Professional Services",,£598.00,,20%,,,"Accounting, Legal and Professional Services",,£588.01,,20%,,,Postage and Stationery,,£36.00,,0%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,13%,Cheque Account
+Money Paid Out,Supplier 1,,,,,,20/06/2020,PAY10,FRV: 1o2 MPO 2 with VAT + 1 without ; Supplier 1,,,,9,,3,,,"Accounting, Legal and Professional Services",,"£5,985.33",,20%,,,"Accounting, Legal and Professional Services",,£589.22,,20%,,,Postage and Stationery,,£895.36,,0%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,13%,Cheque Account
+Money Paid Out,Supplier 1,,,,,,20/06/2020,PAY11,FRV: 2o2 MPO 2 with VAT + 1 without ; Supplier 1,,,,9,,2,,,"Accounting, Legal and Professional Services",,£58.58,,20%,,,Postage and Stationery,,£45.45,,0%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,13%,Cheque Account
+Money Paid Out,Supplier 1,,,,,,24/03/2022,PAY12,"Post FRV, normal expense",,,,9,,3,,,"Accounting, Legal and Professional Services",,£240.00,,20%,,,"Accounting, Legal and Professional Services",,£360.00,,20%,,,Postage and Stationery,,£10.00,,0%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,Cheque Account
