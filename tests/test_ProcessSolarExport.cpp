@@ -206,3 +206,25 @@ TEST(ProcessSolarExportTest, accumulateAllVatInformation_FRV_2i1e)
   EXPECT_FLOAT_EQ(pse.getTotalPurchasesExVat(), 0.0);
 }
 
+
+
+// ====================== Following FRV - normal VAT =================
+TEST(ProcessSolarExportTest, accumulateAllVatInformationPostFrvNormalVAT)
+{
+  shared_ptr<VatDate> vatDate = std::make_shared<VatDate>();
+
+  vatDate->setVatYearEndMonth(3); // year end month (Jan:1, Dec:12)
+  vatDate->setInterestingVatPeriodEnd(3,2022);
+  
+  ProcessSolarExport pse(vatDate);
+  pse.open("../src/data/Exported Data - MTD Test Set 1.csv");
+
+  pse.loadTitles();
+  pse.loadAccountsOnly();
+  pse.accumulateAllVatInformation();
+
+  EXPECT_FLOAT_EQ(pse.getVatDueOnSales(), 109.20);
+  EXPECT_FLOAT_EQ(pse.getVatReclaimable(), 100.0);
+  EXPECT_FLOAT_EQ(pse.getTotalSalesExVat(), 546.0);
+  EXPECT_FLOAT_EQ(pse.getTotalPurchasesExVat(), 510.0);
+}
