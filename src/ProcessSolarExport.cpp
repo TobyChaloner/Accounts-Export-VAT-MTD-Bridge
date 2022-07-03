@@ -113,18 +113,18 @@ PostAction ProcessSolarExport::loadAccountsLine(vector<string> &vec)
     // there are two types of group record.
     // One that is a topnode (no or blank 'Group Under') and a sub node, which has a 'Group Under'
     // the Group Under need to recurse back to their topnode.
+
+    // need rtrim to loose any MS Windows line endings
+    string name = rtrim(vec[offsetOfTitleName]); 
     
     // its either a top node, or a sub node.  top nodes have fewer fields than subnodes
     if (vec.size() < offsetOfTitleGroupUnder+1 || vec[offsetOfTitleGroupUnder] == string(""))
     {
-      // need rtrim to loose any MS Windows line endings
-      string name = rtrim(vec[offsetOfTitleName]); 
       // top node
       hierachy[name] = name;
     }
     else
     {
-      string name =   rtrim(vec[offsetOfTitleName]);
       string parent = rtrim(vec[offsetOfTitleGroupUnder]);
 	
       // flatten hierachy, so all nodes point to their top node.  i.e. Expenses point to Expenses
@@ -137,8 +137,11 @@ PostAction ProcessSolarExport::loadAccountsLine(vector<string> &vec)
   else if (vec[offsetOfTitleType] == accountPrefix)
   {
     // an account needs to be identified as an Expenses or Income account
-    string topNode = findTopNode(vec[offsetOfTitleGroupUnder]);
-    hierachy[vec[1]] = topNode; 
+    string name =   rtrim(vec[offsetOfTitleName]);
+    string parent = rtrim(vec[offsetOfTitleGroupUnder]);
+
+    string topNode = findTopNode(parent);
+    hierachy[name] = topNode; 
   }
   else
   {
