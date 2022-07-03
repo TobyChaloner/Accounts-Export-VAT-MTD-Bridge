@@ -113,18 +113,18 @@ PostAction ProcessSolarExport::loadAccountsLine(vector<string> &vec)
     // there are two types of group record.
     // One that is a topnode (no or blank 'Group Under') and a sub node, which has a 'Group Under'
     // the Group Under need to recurse back to their topnode.
+
+    // need rtrim to loose any MS Windows line endings
+    string name = rtrim(vec[offsetOfTitleName]); 
     
     // its either a top node, or a sub node.  top nodes have fewer fields than subnodes
     if (vec.size() < offsetOfTitleGroupUnder+1 || vec[offsetOfTitleGroupUnder] == string(""))
     {
-      // need rtrim to loose any MS Windows line endings
-      string name = rtrim(vec[offsetOfTitleName]); 
       // top node
       hierachy[name] = name;
     }
     else
     {
-      string name =   rtrim(vec[offsetOfTitleName]);
       string parent = rtrim(vec[offsetOfTitleGroupUnder]);
 	
       // flatten hierachy, so all nodes point to their top node.  i.e. Expenses point to Expenses
@@ -137,8 +137,11 @@ PostAction ProcessSolarExport::loadAccountsLine(vector<string> &vec)
   else if (vec[offsetOfTitleType] == accountPrefix)
   {
     // an account needs to be identified as an Expenses or Income account
-    string topNode = findTopNode(vec[offsetOfTitleGroupUnder]);
-    hierachy[vec[1]] = topNode; 
+    string name =   rtrim(vec[offsetOfTitleName]);
+    string parent = rtrim(vec[offsetOfTitleGroupUnder]);
+
+    string topNode = findTopNode(parent);
+    hierachy[name] = topNode; 
   }
   else
   {
@@ -220,13 +223,13 @@ PostAction ProcessSolarExport::processInvoiceVat(vector<string> &vec)
   bool isFlatRateVat(false);  // detect Flat Rate Flat
   if (offsetOfFRV > 0 || isTitleKnown("VAT Flat Rate"))
   {
-    if (offsetOfFRV < 0)
+    if (offsetOfFRV < 0) // has this line never been visited before
     {
+      // cache the FRV column offset
       offsetOfFRV = getTitleOffset("VAT Flat Rate");
     }
-#if DEBUG_INVOICE
-    cout << "i vec.size()"<<vec.size()<<", offsetOfFRV"<<offsetOfFRV<<endl;
-#endif
+    // The FRV% column may not be present, it may not be populated
+    // if the FRV column present and populated -> get the rate (float)
     if (vec.size() > offsetOfFRV && !vec[offsetOfFRV].empty())
     {
       // get FRV %
@@ -241,13 +244,15 @@ PostAction ProcessSolarExport::processInvoiceVat(vector<string> &vec)
     }
   }   
   string recDate = vec[offsetOfDate];
-  if (vatDate->isInVatPeriod(recDate))
+  if (vatDate->isInVatPeriod(recDate)) // ignore invoices outside VAT period
   {
+    // each entry on an invoice is called a line.
+    // The CSV contains available Lines for the invoice with the most lines.  Other smaller invoices
+    // do not have their lines populated.  They could be empty or not present.
     string linesStr = vec[offsetOfLines];
     int lines = stoi(linesStr); // string to int C++11
     for (int i=1; i <= lines; ++i)
     {
-      // if in interesting dates
       float amount = getAmount(vec, string("Line "), i, string(" Amount"));
 #if DEBUG_INVOICE
       cout << "amount "<< amount<<endl;
