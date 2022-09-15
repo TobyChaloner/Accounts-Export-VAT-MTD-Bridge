@@ -16,7 +16,8 @@ Validation -
 Run VAT in Solar and eye ball figures.
 Visually confirm the figures imported into 100PcVatFreeBridge are the same.
 
-
+Tip
+Run the VAT in Solar AFTER the export.  Saving the VAT Payment can distort if it is in the date range.  The author normally dates the VAT payment on the last day of the VAT period, to avoid it being picked up in the next.
 
 Gotcha
 C++11 ie C++ V11
