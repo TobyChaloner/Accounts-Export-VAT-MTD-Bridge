@@ -2,7 +2,11 @@
 #cd /home/toby/dev/solar/mtd-bridge/build ; cmake  -DCMAKE_BUILD_TYPE=Debug  ../src
 
 #build and run
-#cd /home/toby/dev/solar/mtd-bridge/build ;  cmake --build . && cd ../src && ../build/prog
+#cd /home/toby/dev/solar/mtd-bridge/build ;  cmake --build . && cd ../src && ../build/src/Solar100PcVatFreeBridge
+
+#to run on a file (assume in dir about build) for VAT end month 8
+#./build/src/Solar100PcVatFreeBridge -i Month8\ export.csv -o out.csv -e 8
+
 
 
 #to run the tests

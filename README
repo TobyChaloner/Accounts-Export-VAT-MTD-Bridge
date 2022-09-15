@@ -6,7 +6,6 @@ the non-cloud based Solar Accounts to 100PercentVATFreeBridge.
 
 
 
-
 Process -
 
 In Solar - File Export to CSV (export everything)
@@ -29,7 +28,7 @@ cmake
 Usage:
 Solar100PcVatFreeBridge -i 'Exported Data - My Company Ltd.csv' -o mtd100PcVatFreeInput.csv -e 6
 
-Where one of your vat periods ends in June (-e 6).
+-e Where one of your vat periods ends in June (-e 6).
 -i is the export from Solar Accounts
 -o is the csv to be read by MTD PC Free Vat Input tool.
 
