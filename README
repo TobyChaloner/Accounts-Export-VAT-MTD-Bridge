@@ -6,7 +6,6 @@ the non-cloud based Solar Accounts to 100PercentVATFreeBridge.
 
 
 
-
 Process -
 
 In Solar - File Export to CSV (export everything)
@@ -17,7 +16,8 @@ Validation -
 Run VAT in Solar and eye ball figures.
 Visually confirm the figures imported into 100PcVatFreeBridge are the same.
 
-
+Tip
+Run the VAT in Solar AFTER the export.  Saving the VAT Payment can distort if it is in the date range.  The author normally dates the VAT payment on the last day of the VAT period, to avoid it being picked up in the next.
 
 Gotcha
 C++11 ie C++ V11
@@ -29,7 +29,7 @@ cmake
 Usage:
 Solar100PcVatFreeBridge -i 'Exported Data - My Company Ltd.csv' -o mtd100PcVatFreeInput.csv -e 6
 
-Where one of your vat periods ends in June (-e 6).
+-e Where one of your vat periods ends in June (-e 6).
 -i is the export from Solar Accounts
 -o is the csv to be read by MTD PC Free Vat Input tool.
 

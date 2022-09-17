@@ -7,12 +7,17 @@
 #apt install gcc-mingw-w64
 #apt install g++-mingw-w64
 
-# cmake commands in build directory
+# cmake commands in build directory (build-win)
 # cmake -DCMAKE_TOOLCHAIN_FILE=../src/TC-mingw.cmake ../src
 # assumes directory structure
 # mtd-bridge
 #   src
 #   build-win <current directory>
+
+#building
+#cd build-win
+#cmake -DCMAKE_TOOLCHAIN_FILE=../src/TC-mingw.cmake ../src
+#cmake --build .
 
 # the name of the target operating system
 set(CMAKE_SYSTEM_NAME Windows)
