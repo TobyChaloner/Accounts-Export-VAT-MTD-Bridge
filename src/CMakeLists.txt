@@ -10,4 +10,7 @@ add_executable(${BINARY} ${SOURCES})
 set(SRC_LIB_ROOT ${CMAKE_PROJECT_NAME})
 add_library(${SRC_LIB_ROOT}_lib STATIC ${SOURCES})
 
+#Pick up the version number read from Git
+include_directories(${CMAKE_BINARY_DIR})
+
 

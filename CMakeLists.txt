@@ -38,4 +38,26 @@ include_directories(libs)
 add_subdirectory(src)
 add_subdirectory(tests)
 
+#output the binary to a bin directory
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+
+
+#
+# Add version number into executable
+#
+#cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+#project(cmake-git-versioning-example C)
+#include_directories(${CMAKE_BINARY_DIR})
+#add_executable(foobar main.c)
+find_package(Git)
+add_custom_target(version
+  ${CMAKE_COMMAND} -D SRC=${CMAKE_SOURCE_DIR}/include/SolarMtdBridge_version.h.in
+                   -D DST=${CMAKE_BINARY_DIR}/SolarMtdBridge_version.h
+                   -D GIT_EXECUTABLE=${GIT_EXECUTABLE}
+                   -P ${CMAKE_SOURCE_DIR}/utility/GenerateVersionHeader.cmake
+  )
+add_dependencies(Solar100PcVatFreeBridge version)
 

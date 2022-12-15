@@ -6,6 +6,7 @@
 
 
 
+#include "SolarMtdBridge_version.h"
 
 
 #include "ProcessSolarExport.h"
@@ -68,6 +69,8 @@ void usage()
 
 int main(int argc, char *argv[])
 {
+  cout << "Version " <<SOLAR_MTD_BRIDGE_VERSION << endl;
+  //printf("%s\n", FOOBAR_VERSION);
   float vatOnSales(0.0);
   float vatReclaimable(0.0);
   float totalSales(0.0);
