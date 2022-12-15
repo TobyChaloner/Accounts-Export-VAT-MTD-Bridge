@@ -1,5 +1,8 @@
 #used to cross-compile for windows
 
+#Build from src top dir
+#cd ../win-bld && cmake -DCMAKE_TOOLCHAIN_FILE=../src/TC-mingw.cmake ../src && cmake --build .
+
 
 #from cmake/help/book/mastering-cmake/chapter/Cross Compiling With CMake.html
 
